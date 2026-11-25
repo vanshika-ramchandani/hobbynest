@@ -1,12 +1,31 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, FlaskConical } from "lucide-react";
 import { useAuth } from "../auth";
+import { DEMO_MODE } from "../api";
+
+function DemoBanner() {
+  if (!DEMO_MODE) return null;
+  const reset = async () => {
+    const { resetDemo } = await import("../demo/db");
+    resetDemo();
+    window.location.assign(import.meta.env.BASE_URL);
+  };
+  return (
+    <div className="bg-terracotta-100 px-4 py-2 text-center text-xs font-medium text-navy sm:text-sm">
+      <FlaskConical className="mr-1 inline size-4 align-text-bottom text-terracotta-700" aria-hidden="true" />
+      Demo version: everything runs in your browser and your data is saved only on this device. Payments are test-only.{" "}
+      <button onClick={reset} className="font-bold text-terracotta-700 underline">
+        Reset demo data
+      </button>
+    </div>
+  );
+}
 
 function Logo({ light }) {
   return (
     <Link to="/" className="flex items-center gap-2" aria-label="HobbyNest home">
-      <img src="/favicon.svg" alt="" className="size-8" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-8" />
       <span className={`text-xl font-extrabold tracking-tight ${light ? "text-white" : ""}`}>
         Hobby<span className="text-terracotta">Nest</span>
       </span>
@@ -41,6 +60,7 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <DemoBanner />
       <header className="sticky top-0 z-40 bg-navy/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Logo light />

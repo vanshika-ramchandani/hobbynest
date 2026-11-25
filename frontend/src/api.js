@@ -17,7 +17,27 @@ function firstError(data) {
   return field && field !== "non_field_errors" ? `${field.replace(/_/g, " ")}: ${msg}` : msg;
 }
 
-export async function api(path, { method = "GET", body, auth = true } = {}) {
+/**
+ * Demo mode (used for the GitHub Pages build): no server, the whole API runs in the browser
+ * and data is kept in localStorage. Local development and cloud deployments use the Django API.
+ */
+export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
+
+async function demoApi(path, { method = "GET", body, auth = true } = {}) {
+  const { mockApi } = await import("./demo/mockApi");
+  const token = auth ? localStorage.getItem("hn_access") : null;
+  try {
+    // Clone so the in-browser "server" never shares objects with React state.
+    return structuredClone(await mockApi(path, { method, body }, token));
+  } catch (e) {
+    if (e?.status) throw new ApiError(e.message, e.status, { detail: e.message, code: e.code });
+    throw e;
+  }
+}
+
+export async function api(path, options = {}) {
+  if (DEMO_MODE) return demoApi(path, options);
+  const { method = "GET", body, auth = true } = options;
   const headers = { "Content-Type": "application/json" };
   const token = localStorage.getItem("hn_access");
   if (auth && token) headers.Authorization = `Bearer ${token}`;

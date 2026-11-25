@@ -34,6 +34,21 @@ This repository is the working MVP for the B.Tech 5th semester integrated assign
 - Policies page (privacy, terms, refunds, damage, Rent-to-Buy)
 - `/api/health/` endpoint with DB check, uptime and request/error counters, plus structured request logs
 
+## Live demo (GitHub Pages)
+
+https://vanshika-ramchandani.github.io/hobbynest/
+
+GitHub Pages can only serve static files, so the Pages build runs in **demo mode**: `frontend/src/demo/` re-implements the API in the browser (same endpoints, JSON shapes and business rules as Django, including pricing and rounding) and stores data in `localStorage`. Use the "Student renter" or "Equipment owner" buttons on the login page, or register a new account. Data stays on your device; "Reset demo data" in the banner starts fresh.
+
+Demo mode is switched on only by `VITE_DEMO_MODE=true` at build time (see `.github/workflows/pages.yml`). Local development and any cloud deployment use the real Django backend.
+
+To build the demo version yourself:
+
+```bash
+cd frontend
+VITE_DEMO_MODE=true VITE_BASE=/hobbynest/ npm run build
+```
+
 ## Run locally (no Docker)
 
 Backend:

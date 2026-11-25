@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth";
 import { Alert } from "../components/ui";
+import { DEMO_MODE } from "../api";
 
 function Shell({ title, subtitle, children }) {
   return (
@@ -21,12 +22,11 @@ export function Login() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const submit = async (e) => {
-    e.preventDefault();
+  const signIn = async (username, password) => {
     setBusy(true);
     setError("");
     try {
-      const u = await login(f.username.trim(), f.password);
+      const u = await login(username, password);
       const next = params.get("next");
       nav(next && next.startsWith("/") ? next : u?.role === "owner" ? "/owner" : "/browse");
     } catch (err) {
@@ -34,6 +34,11 @@ export function Login() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+    signIn(f.username.trim(), f.password);
   };
 
   return (
@@ -50,6 +55,20 @@ export function Login() {
         {error && <Alert>{error}</Alert>}
         <button className="btn-primary w-full py-3" disabled={busy}>{busy ? "Logging in..." : "Log in"}</button>
       </form>
+      {DEMO_MODE && (
+        <div className="mt-6 rounded-xl bg-sand p-4">
+          <p className="text-sm font-bold">Just looking? Try a demo account</p>
+          <p className="mt-1 text-xs text-navy/60">No password needed. Demo data is stored only in this browser.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button type="button" className="btn-dark py-2 text-sm" disabled={busy} onClick={() => signIn("demo_student", "")}>
+              Student renter
+            </button>
+            <button type="button" className="btn-ghost py-2 text-sm" disabled={busy} onClick={() => signIn("kavya_owner", "")}>
+              Equipment owner
+            </button>
+          </div>
+        </div>
+      )}
       <p className="mt-6 text-center text-sm text-navy/60">
         New here? <Link to="/register" className="font-bold text-terracotta-700 hover:underline">Create an account</Link>
       </p>
