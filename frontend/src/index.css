@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy: #1b263b;
+  --color-navy-800: #243250;
+  --color-navy-600: #34466b;
+  --color-terracotta: #e07a5f;
+  --color-terracotta-300: #f0b4a3;
+  --color-terracotta-100: #fbe7e1;
+  /* Darker terracotta for text on light backgrounds (passes WCAG AA) */
+  --color-terracotta-700: #b4513a;
+  --color-slate: #3d5a80;
+  --color-slate-100: #e3e9f2;
+  --color-cream: #faf6f1;
+  --color-sand: #f1e9df;
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-navy antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-terracotta);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary,
+  .btn-dark,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-semibold transition
+      active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  /* Navy text on terracotta: 5.2:1 contrast. White on terracotta would fail AA (about 3:1). */
+  .btn-primary {
+    @apply bg-terracotta text-navy hover:bg-[#d96c50];
+  }
+  .btn-dark {
+    @apply bg-navy text-white hover:bg-navy-800;
+  }
+  .btn-ghost {
+    @apply border border-navy/15 bg-white text-navy hover:border-navy/40;
+  }
+  .card {
+    @apply rounded-2xl border border-navy/8 bg-white shadow-[0_1px_2px_rgba(27,38,59,.04),0_8px_24px_-12px_rgba(27,38,59,.12)];
+  }
+  .input {
+    @apply w-full rounded-xl border border-navy/15 bg-white px-3.5 py-2.5 text-navy placeholder:text-navy/40
+      focus:border-slate focus:outline-none focus:ring-2 focus:ring-slate/20;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-navy/80;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+}

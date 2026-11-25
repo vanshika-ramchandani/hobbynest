@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: hobbynest
+          POSTGRES_USER: hobbynest
+          POSTGRES_PASSWORD: ci-only-password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hobbynest" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://hobbynest:ci-only-password@localhost:5432/hobbynest
+      DJANGO_SECRET_KEY: ci-only-secret
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt coverage
+      - run: python manage.py check
+      - run: coverage run --source=rentals,accounts manage.py test
+      - run: coverage report
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  java-core:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: java-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - run: mvn -B verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: java-core/target/site/jacoco/
+
+  docker:
+    needs: [backend, frontend, java-core]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t hobbynest-backend ./backend
+      - run: docker build -t hobbynest-frontend ./frontend
+      - run: docker build -t hobbynest-java-engine ./java-core
+      # Deploy step goes here once a cloud target is chosen (e.g. push to a registry, then update the service).

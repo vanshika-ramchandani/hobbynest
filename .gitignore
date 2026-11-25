@@ -1,0 +1,28 @@
+# Secrets
+.env
+*.env
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+backend/staticfiles/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+frontend/dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Java
+java-core/target/
+java-core/data/
+java-core/demo-data/
